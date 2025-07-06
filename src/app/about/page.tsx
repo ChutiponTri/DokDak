@@ -1,27 +1,17 @@
-import React from "react";
-import Image from "next/image";
-import Link from "next/link";
+import Image from "next/image"
+import Link from "next/link"
+import React from "react"
 
-export default function Home() {
-
+function page() {
   return (
     <div>
       <div className="relative w-screen h-screen">
         <Image
-          src="/assets/intro.jpg"
-          alt="Full Background"
+          src={"/assets/about.jpg"}
           fill
-          className="object-cover"
-          priority
+          alt="cat"
         />
-        <Link
-          href="/about"
-          className="absolute bottom-48 right-52 bg-black bg-opacity-0 px-24 py-16 pb-8 mt-8 rounded-full hover:bg-opacity-10 transition text-white text-opacity-0"
-        >
-          Learn More
-        </Link>
       </div>
-
       <div className="grid grid-cols-2 min-h-screen">
         <div className="relative h-[750px] hover:scale-110">
           <Link href={{
@@ -50,7 +40,8 @@ export default function Home() {
           </Link>
         </div>
       </div>
-
     </div>
-  );
+  )
 }
+
+export default page
