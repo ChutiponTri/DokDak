@@ -28,8 +28,7 @@ async function DesktopNavbar() {
         </Button>
         <Button variant="ghost" className="flex items-center gap-2" asChild>
           <Link href={{
-            pathname: "/animals",
-            query: { mode: "adopt" }
+            pathname: "/pickup",
           }}>
             <DogIcon className="w-4 h-4" />
             <span className="hidden lg:inline">รับเลี้ยง</span>

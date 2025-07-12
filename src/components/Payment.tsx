@@ -1,3 +1,5 @@
+"use client"
+
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
@@ -5,68 +7,178 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button"
+import React from "react"
+import Image from "next/image"
+import { Textarea } from "./ui/textarea"
 
-export default function Component({ name, mode, pack, price }: { name: string, mode: string, pack: string, price: string }) {
+type validPayment = "card" | "digital-wallet" | "qrcode";
+
+export default function Component({ name, mode, pack, price, pickup }: { name: string, mode: string, pack: string, price: string, pickup: string }) {
   const min = pack.toLowerCase() === "custom" ? 0 : Number(price.split("-")[0]);
   const max = pack.toLowerCase() === "custom" ? Infinity : Number(price.split("-")[1]);
+
+  const [payment, setPayment] = React.useState<validPayment>("card");
+  const [donatePrice, setDonatePrice] = React.useState<number>(min);
+  const shipmentPrice = 35;
+  const discount = 10;
+  const [finalPrice, setFinalPrice] = React.useState<number>(min);
+
+  React.useEffect(() => {
+    const price = mode === "รับเลี้ยง" ? (pickup === "delivery" ? shipmentPrice : 0) : donatePrice - discount;
+    setFinalPrice(price < 0 ? 0 : price);
+  }, [donatePrice]);
+
   return (
     <div className="grid md:grid-cols-2 gap-6 max-w-6xl mx-auto py-8 px-4">
       <div className="grid gap-6">
         <Card>
           <CardHeader>
-            <CardTitle>การชำระเงิน</CardTitle>
-            <CardDescription>กรอกข้อมูลในการชำระเงินสำหรับการ{mode} {name}</CardDescription>
+            <CardTitle>การชำระเงินในการ{mode} {name}</CardTitle>
+            <CardDescription>กรอกข้อมูลสำหรับการ{mode} {name}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid gap-2">
-              <Label htmlFor="cardNumber">เลขบัตรเครดิต</Label>
-              <Input id="cardNumber" placeholder="4111 1111 1111 1111" />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="grid gap-2">
-                <Label htmlFor="expiration">วันหมดอายุ</Label>
-                <div className="grid grid-cols-2 gap-2">
+            {payment === "card" &&
+              <>
+                <div className="grid gap-2">
+                  <Label htmlFor="cardNumber">เลขบัตรเครดิต</Label>
+                  <Input id="cardNumber" placeholder="4111 1111 1111 1111" />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="expiration">วันหมดอายุ</Label>
+                    <div className="grid grid-cols-2 gap-2">
+                      <Select>
+                        <SelectTrigger id="expiration-month">
+                          <SelectValue placeholder="MM" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {Array.from({ length: 12 }, (_, i) => (
+                            <SelectItem key={i + 1} value={(i + 1).toString()}>
+                              {i + 1}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Select>
+                        <SelectTrigger id="expiration-year">
+                          <SelectValue placeholder="YY" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {Array.from({ length: 10 }, (_, i) => (
+                            <SelectItem key={i + 2023} value={(i + 2023).toString()}>
+                              {i + 2023}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="cvc">CVC</Label>
+                    <Input id="cvc" placeholder="123" />
+                  </div>
+                </div>
+                {mode === "บริจาคให้" ? (
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="grid gap-2">
+                      <Label htmlFor="cardholderName">ชื่อเจ้าของบัตร</Label>
+                      <Input id="cardholderName" placeholder="วรัตตรา วิภูศิริคุปต์" />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="price">ราคาที่ต้องการ{mode} {name}</Label>
+                      <Input
+                        id="price"
+                        type="number"
+                        min={min}
+                        max={max}
+                        placeholder={price.toLowerCase() === "none" ? "เลือกราคาที่ต้องการ" : `${price} บาท`}
+                        onChange={(e) => setDonatePrice(Number(e.target.value))}
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <div>
+                      <Label htmlFor="cardholderName">ชื่อเจ้าของบัตร</Label>
+                      <Input id="cardholderName" placeholder="วรัตตรา วิภูศิริคุปต์" />
+                    </div>
+                    {pickup === "delivery" &&
+                      <div>
+                        <Label htmlFor="address">ที่อยู่</Label>
+                        <Textarea
+                          id="address"
+                          placeholder="9/16 หมู่ 17 ถนนพหลโยธิน ตำบลคลองหนึ่ง อำเภอคลองหลวง จังหวัดปทุมธานี"
+                          rows={3}
+                          className="resize-none"
+                        />
+                      </div>
+                    }
+                  </>
+                )
+                }
+              </>
+            }
+            {payment === "digital-wallet" &&
+              <>
+                <div className="grid gap-2">
+                  <Label htmlFor="walletProvider">ผู้ให้บริการวอลเล็ต</Label>
                   <Select>
-                    <SelectTrigger id="expiration-month">
-                      <SelectValue placeholder="MM" />
+                    <SelectTrigger id="walletProvider">
+                      <SelectValue placeholder="เลือกวอลเล็ต" />
                     </SelectTrigger>
                     <SelectContent>
-                      {Array.from({ length: 12 }, (_, i) => (
-                        <SelectItem key={i + 1} value={(i + 1).toString()}>
-                          {i + 1}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Select>
-                    <SelectTrigger id="expiration-year">
-                      <SelectValue placeholder="YY" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {Array.from({ length: 10 }, (_, i) => (
-                        <SelectItem key={i + 2023} value={(i + 2023).toString()}>
-                          {i + 2023}
-                        </SelectItem>
-                      ))}
+                      <SelectItem value="truemoney">TrueMoney</SelectItem>
+                      <SelectItem value="promptpay">PromptPay</SelectItem>
+                      <SelectItem value="linepay">LINE Pay</SelectItem>
+                      <SelectItem value="applepay">Apple Pay</SelectItem>
+                      <SelectItem value="googlepay">Google Pay</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
+
+                <div className="grid gap-2">
+                  <Label htmlFor="wallet-id">เบอร์โทร / อีเมลที่เชื่อมกับวอลเล็ต</Label>
+                  <Input id="wallet-id" placeholder="089xxxxxxx หรือ example@email.com" />
+                </div>
+
+                {mode === "บริจาคให้" ? (
+                  <div className="grid gap-2">
+                    <Label htmlFor="price">ราคาที่ต้องการ {mode} {name}</Label>
+                    <Input
+                      id="price"
+                      type="number"
+                      min={min}
+                      max={max}
+                      placeholder={price.toLowerCase() === "none" ? "เลือกราคาที่ต้องการ" : `${price} บาท`}
+                      onChange={(e) => setDonatePrice(Number(e.target.value))}
+                    />
+                  </div>
+                ) : (
+                  pickup === "delivery" &&
+                  <div>
+                    <Label htmlFor="address">ที่อยู่</Label>
+                    <Textarea
+                      id="address"
+                      placeholder="9/16 หมู่ 17 ถนนพหลโยธิน ตำบลคลองหนึ่ง อำเภอคลองหลวง จังหวัดปทุมธานี"
+                      rows={3}
+                      className="resize-none"
+                    />
+                  </div>
+
+                )}
+              </>
+            }
+            {payment === "qrcode" &&
+              <div className="flex justify-center items-center">
+                <Image
+                  src={"/assets/qrcode.jpg"}
+                  width={300}
+                  height={300}
+                  alt="QRcode"
+                  className=""
+                />
               </div>
-              <div className="grid gap-2">
-                <Label htmlFor="cvc">CVC</Label>
-                <Input id="cvc" placeholder="123" />
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="grid gap-2">
-                <Label htmlFor="cardholderName">ชื่อเจ้าของบัตร</Label>
-                <Input id="cardholderName" placeholder="วรัตตรา วิภูศิริคุปต์" />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="price">ราคาที่ต้องการ{mode} {name}</Label>
-                <Input id="price" type="number" min={min} max={max} placeholder={price.toLowerCase() === "none" ? "เลือกราคาที่ต้องการ" : `${price} บาท`} />
-              </div>
-            </div>
+            }
           </CardContent>
         </Card>
         <Card>
@@ -75,7 +187,7 @@ export default function Component({ name, mode, pack, price }: { name: string, m
             <CardDescription>เลือกรูปแบบการชำระเงินที่ต้องการ</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <RadioGroup defaultValue="card" className="grid grid-cols-3 gap-4">
+            <RadioGroup defaultValue="card" className="grid grid-cols-3 gap-4" onValueChange={(value: validPayment) => setPayment(value)}>
               <div>
                 <RadioGroupItem value="card" id="card" className="peer sr-only" />
                 <Label
@@ -97,13 +209,13 @@ export default function Component({ name, mode, pack, price }: { name: string, m
                 </Label>
               </div>
               <div>
-                <RadioGroupItem value="other" id="other" className="peer sr-only" />
+                <RadioGroupItem value="qrcode" id="qrcode" className="peer sr-only" />
                 <Label
-                  htmlFor="other"
+                  htmlFor="qrcode"
                   className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
                 >
-                  <DollarSignIcon className="mb-3 h-6 w-6" />
-                  อื่น ๆ
+                  <QRCodeIcon className="mb-3 h-6 w-6" />
+                  คิวอาร์โค๊ด
                 </Label>
               </div>
             </RadioGroup>
@@ -120,32 +232,39 @@ export default function Component({ name, mode, pack, price }: { name: string, m
             <div className="grid gap-2">
               <div className="flex items-center justify-between">
                 <span>ราคาแพ็คเกจ</span>
-                <span>฿99.00</span>
+                <span>฿{donatePrice.toFixed(2)}</span>
               </div>
-              <div className="flex items-center justify-between">
-                <span>ค่าจัดส่ง</span>
-                <span>฿5.00</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span>ส่วนลด</span>
-                <span>-฿10.00</span>
-              </div>
+              {mode === "รับเลี้ยง" && pickup === "delivery" &&
+                <div className="flex items-center justify-between">
+                  <span>ค่าจัดส่ง</span>
+                  <span>฿{shipmentPrice.toFixed(2)}</span>
+                </div>
+              }
+              {mode === "บริจาคให้" &&
+                <div className="flex items-center justify-between">
+                  <span>ส่วนลด</span>
+                  <span>-฿{discount.toFixed(2)}</span>
+                </div>
+              }
               <Separator />
               <div className="flex items-center justify-between font-semibold">
                 <span>ราคารวม</span>
-                <span>฿94.00</span>
+                <span>฿{finalPrice.toFixed(2)}</span>
               </div>
             </div>
-            <div className="grid gap-2">
-              <div className="flex items-center justify-between">
-                <span>จำนวน</span>
-                <span>1</span>
+            {mode === "รับเลี้ยง" &&
+              <div className="grid gap-2">
+                <div className="flex items-center justify-between">
+                  <span>จำนวน</span>
+                  <span>1</span>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span>การจัดส่ง</span>
+                  <span>{pickup === "delivery" ? "มาตรฐาน (3-5 วัน)" : "มารับเอง"}</span>
+                </div>
               </div>
-              <div className="flex items-center justify-between">
-                <span>การจัดส่ง</span>
-                <span>มาตรฐาน (3-5 วัน)</span>
-              </div>
-            </div>
+            }
           </CardContent>
         </Card>
         <Button size="lg" className="w-full bg-pink-500 hover:bg-pink-400">
@@ -177,7 +296,7 @@ function CreditCardIcon(props: any) {
 }
 
 
-function DollarSignIcon(props: any) {
+function QRCodeIcon(props: any) {
   return (
     <svg
       {...props}
@@ -191,10 +310,12 @@ function DollarSignIcon(props: any) {
       strokeLinecap="round"
       strokeLinejoin="round"
     >
-      <line x1="12" x2="12" y1="2" y2="22" />
-      <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+      <rect x="3" y="3" width="5" height="5" />
+      <rect x="3" y="16" width="5" height="5" />
+      <rect x="16" y="3" width="5" height="5" />
+      <path d="M16 16h.01M20 16h.01M16 20h.01M20 20h.01M10 8h4M10 12h4M10 16h4" />
     </svg>
-  )
+  );
 }
 
 

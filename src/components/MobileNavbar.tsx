@@ -54,8 +54,7 @@ function MobileNavbar() {
               </Button>
               <Button variant="ghost" className="flex items-center gap-3 justify-start" asChild>
                 <Link href={{
-                  pathname: "/animals",
-                  query: { mode: "adopt" }
+                  pathname: "/pickup",
                 }}>
                   <DogIcon className="w-4 h-4" />
                   รับเลี้ยง
