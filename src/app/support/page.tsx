@@ -1,14 +1,17 @@
 import Image from "next/image"
+import Link from "next/link"
 import React from "react"
 
 function page() {
   return (
     <div className="h-full">
-      <Image 
-        src="/assets/thank.png"
-        alt="thank you"
-        fill
-      />
+      <Link href={"/"}>
+        <Image
+          src="/assets/thank.png"
+          alt="thank you"
+          fill
+        />
+      </Link>
     </div>
   )
 }
