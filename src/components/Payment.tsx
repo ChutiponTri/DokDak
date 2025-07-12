@@ -20,11 +20,12 @@ export default function Component({ name, mode, pack, price, pickup }: { name: s
   const [payment, setPayment] = React.useState<validPayment>("card");
   const [donatePrice, setDonatePrice] = React.useState<number>(min);
   const shipmentPrice = 35;
-  const discount = 10;
+  const [discount, setDiscount] = React.useState<number>(Math.floor(donatePrice * 0.1));
   const [finalPrice, setFinalPrice] = React.useState<number>(min);
 
   React.useEffect(() => {
-    const price = mode === "รับเลี้ยง" ? (pickup === "delivery" ? shipmentPrice : 0) : donatePrice - discount;
+    setDiscount(Math.floor(donatePrice * 0.1));
+    const price = mode === "รับเลี้ยง" ? (pickup === "delivery" ? shipmentPrice : 0) : donatePrice - Math.floor(donatePrice * 0.1);
     setFinalPrice(price < 0 ? 0 : price);
   }, [donatePrice]);
 
