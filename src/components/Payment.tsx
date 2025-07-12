@@ -11,10 +11,12 @@ import React from "react"
 import Image from "next/image"
 import { Textarea } from "./ui/textarea"
 import { Calendar22 } from "./DatePicker"
+import { useRouter } from "next/navigation"
 
 type validPayment = "card" | "digital-wallet" | "qrcode";
 
 export default function Component({ name, mode, pack, price, pickup }: { name: string, mode: string, pack: string, price: string, pickup: string }) {
+  const router = useRouter();
   const min = pack.toLowerCase() === "custom" ? 0 : Number(price.split("-")[0]);
   const max = pack.toLowerCase() === "custom" ? Infinity : Number(price.split("-")[1]);
 
@@ -278,7 +280,7 @@ export default function Component({ name, mode, pack, price, pickup }: { name: s
             }
           </CardContent>
         </Card>
-        <Button size="lg" className="w-full bg-pink-500 hover:bg-pink-400">
+        <Button size="lg" className="w-full bg-pink-500 hover:bg-pink-400" onClick={() => router.push("/support")}>
           ยืนยัน
         </Button>
       </div>
