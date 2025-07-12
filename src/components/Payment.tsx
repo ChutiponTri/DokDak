@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button"
 import React from "react"
 import Image from "next/image"
 import { Textarea } from "./ui/textarea"
+import { Calendar22 } from "./DatePicker"
 
 type validPayment = "card" | "digital-wallet" | "qrcode";
 
@@ -103,16 +104,21 @@ export default function Component({ name, mode, pack, price, pickup }: { name: s
                       <Label htmlFor="cardholderName">ชื่อเจ้าของบัตร</Label>
                       <Input id="cardholderName" placeholder="วรัตตรา วิภูศิริคุปต์" />
                     </div>
-                    {pickup === "delivery" &&
+                    {pickup === "delivery" ? (
                       <div>
                         <Label htmlFor="address">ที่อยู่</Label>
                         <Textarea
                           id="address"
-                          placeholder="9/16 หมู่ 17 ถนนพหลโยธิน ตำบลคลองหนึ่ง อำเภอคลองหลวง จังหวัดปทุมธานี"
+                          placeholder="9/16 หมู่ 17 ถนนพหลโยธิน ตำบลคลองหนึ่ง อำเภอคลองหลวง จังหวัดปทุมธานี 12120 โทร 0949497232"
                           rows={3}
                           className="resize-none"
                         />
                       </div>
+                    ) : (
+                      <div className="w-full">
+                        <Calendar22 />
+                      </div>
+                    )
                     }
                   </>
                 )
@@ -155,17 +161,21 @@ export default function Component({ name, mode, pack, price, pickup }: { name: s
                     />
                   </div>
                 ) : (
-                  pickup === "delivery" &&
-                  <div>
-                    <Label htmlFor="address">ที่อยู่</Label>
-                    <Textarea
-                      id="address"
-                      placeholder="9/16 หมู่ 17 ถนนพหลโยธิน ตำบลคลองหนึ่ง อำเภอคลองหลวง จังหวัดปทุมธานี"
-                      rows={3}
-                      className="resize-none"
-                    />
-                  </div>
-
+                  pickup === "delivery" ? (
+                    <div>
+                      <Label htmlFor="address">ที่อยู่</Label>
+                      <Textarea
+                        id="address"
+                        placeholder="9/16 หมู่ 17 ถนนพหลโยธิน ตำบลคลองหนึ่ง อำเภอคลองหลวง จังหวัดปทุมธานี 12120 โทร 0949497232"
+                        rows={3}
+                        className="resize-none"
+                      />
+                    </div>
+                  ) : (
+                    <div className="w-full">
+                      <Calendar22 />
+                    </div>
+                  )
                 )}
               </>
             }

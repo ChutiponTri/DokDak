@@ -28,8 +28,7 @@ function page() {
         </div>
         <div className="relative h-[750px] hover:scale-110">
           <Link href={{
-            pathname: "/animals",
-            query: { mode: "adopt" }
+            pathname: "/pickup",
           }}>
             <Image
               src="/assets/choice2.jpg"
