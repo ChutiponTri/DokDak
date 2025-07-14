@@ -280,7 +280,7 @@ export default function Component({ name, mode, pack, price, pickup }: { name: s
             }
           </CardContent>
         </Card>
-        <Button size="lg" className="w-full bg-pink-500 hover:bg-pink-400" onClick={() => router.push("/support")}>
+        <Button size="lg" className="w-full bg-pink-500 hover:bg-pink-400" onClick={() => router.push(`/support?mode=${mode}&pickup=${pickup}`)}>
           ยืนยัน
         </Button>
       </div>
